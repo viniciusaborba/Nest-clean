@@ -1,53 +1,51 @@
-import { Controller, Post, UseGuards, Body } from '@nestjs/common';
-import { CurrentUser } from 'src/auth/current-user.decorator';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { UserPayload } from 'src/auth/jwt.strategy';
-import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { z } from 'zod';
+import { Controller, Post, UseGuards, Body } from "@nestjs/common";
+import { CurrentUser } from "@/auth/current-user.decorator";
+import { JwtAuthGuard } from "@/auth/jwt-auth.guard";
+import { UserPayload } from "@/auth/jwt.strategy";
+import { ZodValidationPipe } from "@/pipes/zod-validation-pipe";
+import { PrismaService } from "@/prisma/prisma.service";
+import { z } from "zod";
 
 const createQuestionBodySchema = z.object({
   title: z.string(),
   content: z.string(),
-})
+});
 
-const bodyValidationPipe = new ZodValidationPipe(createQuestionBodySchema)
+const bodyValidationPipe = new ZodValidationPipe(createQuestionBodySchema);
 
-type CreateQuestionBodySchema = z.infer<typeof createQuestionBodySchema>
+type CreateQuestionBodySchema = z.infer<typeof createQuestionBodySchema>;
 
-@Controller('/questions')
+@Controller("/questions")
 @UseGuards(JwtAuthGuard)
 export class CreateQuestionController {
-  constructor(
-    private prisma: PrismaService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   private convertToSlug(title: string): string {
     return title
       .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-");
   }
-  
+
   @Post()
   async handle(
     @Body(bodyValidationPipe) body: CreateQuestionBodySchema,
     @CurrentUser() user: UserPayload
   ) {
-    const { title, content } = body
-    const { sub: userId } = user
+    const { title, content } = body;
+    const { sub: userId } = user;
 
-    const slug = this.convertToSlug(title)
+    const slug = this.convertToSlug(title);
 
     await this.prisma.question.create({
       data: {
         title,
         content,
         slug,
-        authorId: userId
-      }
-    })
+        authorId: userId,
+      },
+    });
   }
 }
