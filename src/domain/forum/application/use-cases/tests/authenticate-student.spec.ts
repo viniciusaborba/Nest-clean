@@ -26,7 +26,6 @@ describe("Authenticate student", () => {
     inMemoryStudentsRepository.items.push(student)
 
     const result = await sut.execute({
-      name: 'John Doe',
       email: 'johndoe@email.com',
       password: '123456'
     });

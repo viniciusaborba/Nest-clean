@@ -6,7 +6,6 @@ import { WrongCredentialsError } from "./errors/wrong-credentials-error";
 import { HashComparer } from "../cryptography/hash-comparer";
 
 interface AuthenticateStudentUseCaseRequest {
-  name: string;
   email: string;
   password: string;
 }
