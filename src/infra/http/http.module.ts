@@ -23,6 +23,8 @@ import { FetchQuestionAnswersController } from "./controllers/fetch-question-ans
 import { FetchQuestionAnswersUseCase } from "@/domain/forum/application/use-cases/fetch-question-answers";
 import { ChooseQuestionBestAnswerController } from "./controllers/choose-question-best-answer.controller";
 import { ChooseBestAnswerUseCase } from "@/domain/forum/application/use-cases/choose-best-answer";
+import { EditAnswerController } from "./controllers/edit-answer.controller";
+import { EditAnswerUseCase } from "@/domain/forum/application/use-cases/edit-answer";
 
 @Module({
   imports: [
@@ -41,6 +43,7 @@ import { ChooseBestAnswerUseCase } from "@/domain/forum/application/use-cases/ch
     DeleteAnswerController,
     FetchQuestionAnswersController,
     ChooseQuestionBestAnswerController,
+    EditAnswerController,
   ],
   providers: [
     CreateQuestionUseCase,
@@ -54,6 +57,7 @@ import { ChooseBestAnswerUseCase } from "@/domain/forum/application/use-cases/ch
     DeleteAnswerUseCase,
     FetchQuestionAnswersUseCase,
     ChooseBestAnswerUseCase,
+    EditAnswerUseCase,
   ],
 })
 export class HttpModule {}
