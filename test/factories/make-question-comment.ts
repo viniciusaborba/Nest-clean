@@ -25,7 +25,7 @@ export function makeQuestionComment(
 export class QuestionCommentFactory {
   constructor(private prisma: PrismaService) {}
 
-  async makePrismaQuestion(data: Partial<QuestionCommentProps> = {}): Promise<QuestionComment> {
+  async makePrismaQuestionComment(data: Partial<QuestionCommentProps> = {}): Promise<QuestionComment> {
     const question = makeQuestionComment(data)
 
     await this.prisma.comment.create({

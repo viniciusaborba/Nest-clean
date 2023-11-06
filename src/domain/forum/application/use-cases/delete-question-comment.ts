@@ -3,6 +3,7 @@ import { QuestionCommentsRepository } from '../repositories/question-comments-re
 import { ResourceLimits } from 'worker_threads'
 import { NotAllowedError } from './errors/not-allowed-error'
 import { ResourceNotFoundError } from './errors/resource-not-found-error'
+import { Injectable } from '@nestjs/common'
 
 interface DeleteQuestionCommentUseCaseRequest {
   authorId: string
@@ -11,6 +12,7 @@ interface DeleteQuestionCommentUseCaseRequest {
 
 type DeleteQuestionCommentUseCaseResponse = Either<ResourceLimits | NotAllowedError, null>
 
+@Injectable()
 export class DeleteQuestionCommentUseCase {
   constructor (
     private questionCommentsRepository: QuestionCommentsRepository,
