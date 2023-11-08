@@ -25,13 +25,13 @@ export function makeAnswerComment(
 export class AnswerCommentFactory {
   constructor(private prisma: PrismaService) {}
 
-  async makePrismaQuestion(data: Partial<AnswerCommentProps> = {}): Promise<AnswerComment> {
-    const question = makeAnswerComment(data)
+  async makePrismaAnswerComment(data: Partial<AnswerCommentProps> = {}): Promise<AnswerComment> {
+    const answerComment = makeAnswerComment(data)
 
     await this.prisma.comment.create({
-      data: PrismaAnswerCommentMapper.toPrisma(question)
+      data: PrismaAnswerCommentMapper.toPrisma(answerComment)
     })
 
-    return question
+    return answerComment
   }
 }
