@@ -46,13 +46,10 @@ export class PrismaAnswerCommentsRepository
   async create(answerComment: AnswerComment): Promise<void> {
     const data = PrismaAnswerCommentMapper.toPrisma(answerComment)
 
-    console.log('data:' + data )
-
-    const comment = await this.prisma.comment.create({
+    await this.prisma.comment.create({
       data,
     })
 
-    console.log(comment)
   }
 
   async delete(answerComment: AnswerComment): Promise<void> {
