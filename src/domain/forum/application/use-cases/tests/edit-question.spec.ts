@@ -68,7 +68,7 @@ describe("Edit question by id", () => {
     ]);
   });
 
-  it("should not be able to edit a question from another user", async () => {
+  it("should sync new and removed attachments while editing a question", async () => {
     const newQuestion = makeQuestion(
       {
         authorId: new UniqueEntityID("author-1"),
@@ -78,15 +78,37 @@ describe("Edit question by id", () => {
 
     inMemoryQuestionsRepository.create(newQuestion);
 
+    inMemoryQuestionAttachmentsRepository.items.push(
+      makeQuestionAttachment({
+        questionId: newQuestion.id,
+        attachmentId: new UniqueEntityID("1"),
+      }),
+
+      makeQuestionAttachment({
+        questionId: newQuestion.id,
+        attachmentId: new UniqueEntityID("2"),
+      })
+    );
+
     const result = await sut.execute({
-      authorId: "author-2",
+      authorId: "author-1",
       questionId: newQuestion.id.toString(),
       title: "test",
       content: "test content",
-      attachmentsIds: [],
+      attachmentsIds: ["1", "3"],
     });
 
-    expect(result.isLeft()).toBe(true);
-    expect(result.value).toBeInstanceOf(NotAllowedError);
+    expect(result.isRight()).toBe(true)
+    expect(inMemoryQuestionAttachmentsRepository.items).toHaveLength(2)
+    expect(inMemoryQuestionAttachmentsRepository.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          attachmentId: new UniqueEntityID('1')
+        }),
+        expect.objectContaining({
+          attachmentId: new UniqueEntityID('3')
+        }),
+      ])
+    )
   });
 });
