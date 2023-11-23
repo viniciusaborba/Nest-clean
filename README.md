@@ -20,6 +20,9 @@ First of all, clone the project in your computer.
   // Run the containers
   $ docker-compose up -d
 
+  // Run the migrations
+  $ npx prisma run migrate || npm run migrate
+
   // Create .env and .env.test files on root and fill it base on .env.example and .env.test.example
 
   // Run the server
