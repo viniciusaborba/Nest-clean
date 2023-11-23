@@ -7,11 +7,13 @@ import { PrismaQuestionMapper } from "../mappers/prisma-question-mapper";
 import { QuestionAttachmentsRepository } from "@/domain/forum/application/repositories/question-attachments-repository";
 import { PrismaQuestionDetailsMapper } from "../mappers/prisma-question-details-mapper";
 import { DomainEvents } from "@/core/events/domain-events";
+import { CacheRepository } from "@/infra/cache/cache-repository";
 
 @Injectable()
 export class PrismaQuestionsRepository implements QuestionsRepository {
   constructor(
     private prisma: PrismaService,
+    private cache: CacheRepository,
     private questionAttachmentsRepository: QuestionAttachmentsRepository
   ) {}
 
@@ -44,6 +46,14 @@ export class PrismaQuestionsRepository implements QuestionsRepository {
   }
 
   async findDetailsBySlug(slug: string) {
+    const cacheHit = await this.cache.get(`question:${slug}:details`)
+
+    if (cacheHit) {
+      const cachedData = JSON.parse(cacheHit)
+
+      return cachedData
+    }
+
     const question = await this.prisma.question.findUnique({
       where: {
         slug,
@@ -58,7 +68,14 @@ export class PrismaQuestionsRepository implements QuestionsRepository {
       return null;
     }
 
-    return PrismaQuestionDetailsMapper.toDomain(question);
+    const questionDetails = PrismaQuestionDetailsMapper.toDomain(question);
+
+    await this.cache.set(
+      `question:${slug}:details`,
+      JSON.stringify(questionDetails)
+    );
+
+    return questionDetails;
   }
 
   async findManyRecent({ page }: PaginationParams) {
@@ -91,7 +108,7 @@ export class PrismaQuestionsRepository implements QuestionsRepository {
         },
         data,
       }),
-      
+
       this.questionAttachmentsRepository.createMany(
         question.attachments.getNewItems()
       ),
@@ -99,11 +116,13 @@ export class PrismaQuestionsRepository implements QuestionsRepository {
       this.questionAttachmentsRepository.deleteMany(
         question.attachments.getRemovedItems()
       ),
+
+      this.cache.delete(`question:${data.slug}:details`)
     ]);
-    
-    DomainEvents.dispatchEventsForAggregate(question.id)
+
+    DomainEvents.dispatchEventsForAggregate(question.id);
   }
-  
+
   async create(question: Question) {
     const data = PrismaQuestionMapper.toPrisma(question);
 
@@ -115,6 +134,6 @@ export class PrismaQuestionsRepository implements QuestionsRepository {
       question.attachments.getItems()
     );
 
-    DomainEvents.dispatchEventsForAggregate(question.id)
+    DomainEvents.dispatchEventsForAggregate(question.id);
   }
 }
